@@ -1,0 +1,5 @@
+string request_mode  # Requested mode (e.g., "IPG", "Manual", "AI"). Leave empty to query current mode.
+---
+bool success          # True if the request succeeded.
+string current_mode   # The current mode of the server.
+string message        # Optional message for status or error information.
