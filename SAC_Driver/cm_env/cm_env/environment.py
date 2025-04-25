@@ -89,6 +89,7 @@ class CmEnv(gym.Env, Node):
         self.blue_cones.color.g = 0.0
         self.blue_cones.color.b = 1.0
         self.blue_cones.color.a = 1.0
+        
 
         self.yellow_cones = Marker()
         self.yellow_cones.header.frame_id = "world"
@@ -104,6 +105,8 @@ class CmEnv(gym.Env, Node):
         self.yellow_cones.color.a = 1.0
 
         self.observation = None
+
+        self.previous_steer = 0.0
 
         self.blue_cones_recieved = None
         self.yellow_cones_recieved = None    
@@ -165,10 +168,16 @@ class CmEnv(gym.Env, Node):
         self.yellow_cones_recieved = []
 
         for cone in msg.blue_cones:
-            self.blue_cones_recieved.append((cone.point.x, cone.point.y, cone.point.z))
+            # self.blue_cones_recieved.append((cone.point.x, cone.point.y, cone.point.z))
+            if cone.point.x < 20 and cone.point.y < 20:
+                self.blue_cones_recieved.append((cone.point.x, cone.point.y))
+
 
         for cone in msg.yellow_cones:
-            self.yellow_cones_recieved.append((cone.point.x, cone.point.y, cone.point.z))
+            # self.yellow_cones_recieved.append((cone.point.x, cone.point.y, cone.point.z))
+            if cone.point.x < 20 and cone.point.y < 20:
+                self.yellow_cones_recieved.append((cone.point.x, cone.point.y))
+
         
         socket_observation.send(pickle.dumps((self.blue_cones_recieved, self.yellow_cones_recieved)))
         print("time to observe:            %.5f" %(time.time() - start))
@@ -213,6 +222,18 @@ class CmEnv(gym.Env, Node):
             start_time = time.time()
             try:
                 self.vehicle_commands = pickle.loads(socket_vehicle_commands.recv())
+
+                # proposed_steer_command = self.vehicle_commands['steer']
+                # if abs(self.previous_steer - proposed_steer_command) > 0.14:
+                #     if proposed_steer_command > self.previous_steer:
+                #         self.vehicle_commands['steer'] = (self.previous_steer + 0.14)
+                #     else:
+                #         self.vehicle_commands['steer'] = (self.previous_steer - 0.14) 
+                # else:
+                #     self.vehicle_commands['steer'] = proposed_steer_command
+                
+                # self.previous_steer = proposed_steer_command
+
                 self.send_command_flag = True
             except zmq.Again:
                 self.vehicle_commands = {
@@ -234,7 +255,9 @@ class CmEnv(gym.Env, Node):
 
                     point.x = cone[0]
                     point.y = cone[1]
-                    point.z = cone[2]
+                    # point.z = cone[2]
+                    point.z = 0.0
+
 
                     self.blue_cones.points.append(point)
 
@@ -243,7 +266,9 @@ class CmEnv(gym.Env, Node):
 
                     point.x = cone[0]
                     point.y = cone[1]
-                    point.z = cone[2]
+                    # point.z = cone[2]
+                    point.z = 0.0
+
 
                     self.yellow_cones.points.append(point)
 

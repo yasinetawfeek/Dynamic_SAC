@@ -57,6 +57,25 @@ class TrackBoundary:
             center_points.append((center_x, center_y))
         return LineString(center_points)
     
+    # def _create_centerline(self) -> LineString:
+    #     """Create a centerline between left and right boundaries."""
+    #     center_points = []
+    #     min_length = min(len(self.left_boundary), len(self.right_boundary))
+
+    #     for i in range(min_length):
+    #         left_point = self.left_boundary[i]
+    #         right_point = self.right_boundary[i]
+    #         center_x = (left_point[0] + right_point[0]) / 2
+    #         center_y = (left_point[1] + right_point[1]) / 2
+    #         center_points.append((center_x, center_y))
+
+    #     if len(self.left_boundary) != len(self.right_boundary):
+    #         print(f"Warning: left and right boundaries have different lengths "
+    #             f"({len(self.left_boundary)} vs {len(self.right_boundary)}). "
+    #             f"Truncating to shortest length.")
+
+    #     return LineString(center_points)
+    
     def get_distance_from_centre_line(self, position: Tuple[float, float]):
         return self.geod.geometry_length(LineString(nearest_points(self.centerline, Point(position))))
     
